@@ -7,8 +7,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
+
+import static org.testng.Assert.assertEquals;
 
 
 public class SmokeTests {
@@ -127,5 +131,53 @@ public class SmokeTests {
                 el.click();
 
             }
+
+    @Test
+    public void testSimpleAlert() {
+        driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
+// Click Simple button to show an Alert box
+        driver.findElement(By.id("simple")).click();
+// Optionally we can also wait for an Alert box using the WebDriverWait;
+        new WebDriverWait(driver, 10).until(ExpectedConditions.alertIsPresent());
+// Get the Alert
+        Alert alert = driver.switchTo().alert();
+// Get the text displayed on Alert
+        String textOnAlert = alert.getText();
+// Check correct message is displayed to the user on Alert box
+        assertEquals("Hello! I am an alert box!", textOnAlert);
+// Click OK button, by calling accept method
+        alert.accept();
+    }
+
+    @Test
+    public void testConfirmAccept() {
+        driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
+// Click Confirm button to show Confirmation Alert box
+        driver.findElement(By.id("confirm")).click();
+        // Optionally we can also wait for an Alert box using the WebDriverWait;
+        new WebDriverWait(driver, 10).until(ExpectedConditions.alertIsPresent());
+// Get the Alert
+        Alert alert = driver.switchTo().alert();
+// Click OK button, by calling accept method
+        alert.accept();
+// Check Page displays correct message
+        WebElement message = driver.findElement(By.id("demo"));
+        assertEquals("You Accepted Alert!", message.getText());
+    }
+    @Test
+    public void testConfirmDismiss() {
+// Click Confirm button to show Confirmation Alert box
+        driver.findElement(By.id("confirm")).click();
+        // Optionally we can also wait for an Alert box using the WebDriverWait;
+        new WebDriverWait(driver, 10).until(ExpectedConditions.alertIsPresent());
+// Get the Alert
+        Alert alert = driver.switchTo().alert();
+// Click Cancel button, by calling dismiss method
+        alert.dismiss();
+// Check Page displays correct message
+        WebElement message = driver.findElement(By.id("demo"));
+        assertEquals("You Dismissed Alert!", message.getText());
+    }
+
 
 }
