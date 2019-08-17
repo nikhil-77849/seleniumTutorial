@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -11,6 +12,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
+import org.openqa.selenium.JavascriptExecutor;
+import sun.misc.GThreadHelper;
 
 import static org.testng.Assert.assertEquals;
 
@@ -122,7 +125,6 @@ public class SmokeTests {
                 ChromeOptions options = new ChromeOptions();
                 options.setExperimentalOption("prefs", chromePrefs);
                 WebDriver driver = new ChromeDriver(options);
-
                 driver.navigate().to("https://www.pexels.com/");
                 //We find the download links
                 List<WebElement> list =driver.findElements(By.className("photo-item__img"));
@@ -133,7 +135,7 @@ public class SmokeTests {
             }
 
     @Test
-    public void testSimpleAlert() {
+    public void testSimpleAlert() throws InterruptedException {
         driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
 // Click Simple button to show an Alert box
         driver.findElement(By.id("simple")).click();
@@ -145,12 +147,13 @@ public class SmokeTests {
         String textOnAlert = alert.getText();
 // Check correct message is displayed to the user on Alert box
         assertEquals("Hello! I am an alert box!", textOnAlert);
+        Thread.sleep(10000);
 // Click OK button, by calling accept method
         alert.accept();
     }
 
     @Test
-    public void testConfirmAccept() {
+    public void testConfirmAccept() throws InterruptedException {
         driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
 // Click Confirm button to show Confirmation Alert box
         driver.findElement(By.id("confirm")).click();
@@ -159,25 +162,117 @@ public class SmokeTests {
 // Get the Alert
         Alert alert = driver.switchTo().alert();
 // Click OK button, by calling accept method
+        Thread.sleep(10000);
         alert.accept();
 // Check Page displays correct message
         WebElement message = driver.findElement(By.id("demo"));
         assertEquals("You Accepted Alert!", message.getText());
     }
+
     @Test
-    public void testConfirmDismiss() {
+    public void testConfirmDismiss() throws InterruptedException {
+        driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
 // Click Confirm button to show Confirmation Alert box
         driver.findElement(By.id("confirm")).click();
         // Optionally we can also wait for an Alert box using the WebDriverWait;
         new WebDriverWait(driver, 10).until(ExpectedConditions.alertIsPresent());
 // Get the Alert
         Alert alert = driver.switchTo().alert();
-// Click Cancel button, by calling dismiss method
+// Click Cancel button, by calling dismiss
+        Thread.sleep(5000);
         alert.dismiss();
+        Thread.sleep(5000);
 // Check Page displays correct message
         WebElement message = driver.findElement(By.id("demo"));
         assertEquals("You Dismissed Alert!", message.getText());
+        Thread.sleep(5000);
+        driver.close();
     }
+//prompt alert
 
+    @Test
+    public void testPrompt() throws InterruptedException {
+        driver.navigate().to("http://cookbook.seleniumacademy.com/Alerts.html");
+// Click Confirm button to show Prompt Alert box
+        driver.findElement(By.id("prompt")).click();
+// Get the Alert
+        Alert alert = driver.switchTo().alert();
+// Enter some value on Prompt Alert box
+        alert.sendKeys("Foo");
+// Click OK button, by calling accept method
+        Thread.sleep(10000);
+        alert.accept();
+// Check Page displays message with value entered in Prompt
+        WebElement message = driver.findElement(By.id("prompt_demo"));
+        assertEquals("Hello Foo! How are you today?",
+                message.getText());
+    }
+    @Test
+    public void scrollDownByPixel() throws InterruptedException {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        // Launch the application
+        driver.get("https://www.amazon.in/");
+        //To maximize the window. This code may not work with Selenium 3 jars. If script fails you can remove the line below
+        driver.manage().window().maximize();
+        Thread.sleep(5000);
+        // This  will scroll down the page by  1500 pixel vertical
+        js.executeScript("window.scrollBy(0,3000)");
+        Thread.sleep(5000);
+        driver.close();
+    }
+    @Test
+    public void scrollUp() throws InterruptedException {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        // Launch the application
+        driver.get("https://www.mahadiscom.in/");
+        Thread.sleep(5000);
+        //To maximize the window. This code may not work with Selenium 3 jars. If script fails you can remove the line below
+        driver.manage().window().maximize();
+        // This  will scroll down the page by  1000 pixel vertical
+        ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        Thread.sleep(5000);
+       WebElement element= driver.findElement(By.xpath("//h5[contains(text(),'Quick Bill Payment')]"));
+        Thread.sleep(5000);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+        Thread.sleep(5000);
+        driver.close();
+    }
+    //working with web tables
+    @Test
+    public void testWebTable() throws InterruptedException {
+        driver.navigate().to("https://www.w3schools.com/html/html_tables.asp");
+        driver.manage().window().maximize();
+        WebElement simpleTable = driver.findElement(By.xpath("//table[@id='customers']"));
+        Thread.sleep(5000);
+// Get all rows
+        List<WebElement> rows =
+                simpleTable.findElements(By.tagName("tr"));
+        assertEquals(7, rows.size());
+// Print data from each row
+        for (WebElement row : rows) {
+            List<WebElement> cols = row.findElements(By.tagName("td"));
+            for (WebElement col : cols) {
+                System.out.print(col.getText() + "\t");
 
+            }
+            System.out.println();
+        }
+        driver.close();
+    }
+    //implicit wait
+    @Test
+    public void testWithImplicitWait() {
+        driver.get("http://cookbook.seleniumacademy.com/AjaxDemo.html");
+// Set the implicit wait time out to 10 Seconds
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        try {
+// Get link for Page 4 and click on it
+            driver.findElement(By.linkText("Page 4")).click();
+// Get an element with id page4 and verify it's text
+            WebElement message = driver.findElement(By.id("page4"));
+            Assert.assertTrue(message.getText().contains("Nunc nibh tortor"));
+        } finally {
+            driver.quit();
+        }
+    }
 }
