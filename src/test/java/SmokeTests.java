@@ -259,20 +259,27 @@ public class SmokeTests {
         }
         driver.close();
     }
-    //implicit wait
+    //Synchronizing a test with an implicit wait
     @Test
     public void testWithImplicitWait() {
-        driver.get("http://cookbook.seleniumacademy.com/AjaxDemo.html");
+
+// Launch the sample Ajax application
+        driver.get("http://www.gmail.com/");
 // Set the implicit wait time out to 10 Seconds
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         try {
-// Get link for Page 4 and click on it
-            driver.findElement(By.linkText("Page 4")).click();
+// Get login to Gmail
+            driver.findElement(By.xpath("//input[@id='identifierId']")).sendKeys("www.nikschandwani@gmail.com");
+                                                    driver.findElement(By.xpath("//input[@name='password']")).sendKeys("#niks%7756#");
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                                                    driver.findElement(By.xpath("//input[@placeholder='Search mail']")).click();
+
 // Get an element with id page4 and verify it's text
-            WebElement message = driver.findElement(By.id("page4"));
-            Assert.assertTrue(message.getText().contains("Nunc nibh tortor"));
+            WebElement message = driver.findElement(By.id("//div[@id=':z0']//span[@name='Jabong Updates'][contains(text(),'Jabong Updates')]"));
+            Assert.assertTrue(message.getText().contains("Jabong Updates"));
         } finally {
             driver.quit();
         }
     }
-}
+    }
+
